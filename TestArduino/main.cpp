@@ -1,13 +1,5 @@
-/*
- * main.cpp
- *
- *  Created on: 4 nov. 2012
- *      Author: Aurélien Labrosse <aurelien.labrosse at free.fr>
- */
-
 #include "arduino/Arduino.h"
 #include "arduino/libraries/SPI/SPI.h"
-
 
 const int ledPin = 13;
 
@@ -76,7 +68,6 @@ void dumpInfo() {
 
 void setup() {
 
-
 	pinMode(ledPin, OUTPUT);
 
 	// re-set the default configuration
@@ -96,42 +87,11 @@ void setup() {
 		Serial.read();
 	}
 
-	delay(1000);
+	delay(2000);
 	dumpInfo();
 }
 
 void serialEvent() {
-
-	while (Serial.available()) {
-
-		// get the new byte
-		char inChar = (char) Serial.read();
-
-		char buffer[BUF_SIZE];
-
-		buffer[BUF_SIZE - 1] = '\0';
-		int2bin(inChar, buffer, BUF_SIZE - 1);
-		Serial.print("read : ");
-		Serial.println(buffer);
-
-		// transfer
-		digitalWrite(SS, LOW);
-		SPDR = inChar;
-		while (!(SPSR & (1 << SPIF)))
-			;
-
-		SPDR = 0xF; // send dummy to ensure char has been
-		// sent. see datasheet p.196 :
-		//"The last incoming byte will be kept in the Buffer Register for later use."
-		while (!(SPSR & (1 << SPIF)))
-			;
-
-		digitalWrite(SS, HIGH);
-
-	}
-}
-
-void loop() {
 
 }
 
@@ -141,9 +101,24 @@ int main(void) {
 	setup();
 
 	for (;;) {
-		loop();
-		if (serialEventRun)
-			serialEventRun();
+		while (Serial.available()) {
+
+			// get the new byte
+			char inChar = (char) Serial.read();
+
+			char buffer[BUF_SIZE];
+
+			buffer[BUF_SIZE - 1] = '\0';
+			int2bin(inChar, buffer, BUF_SIZE - 1);
+			Serial.print("read : ");
+			Serial.println(buffer);
+
+			// transfer
+			digitalWrite(SS, LOW);
+			SPI.transfer(inChar);
+			digitalWrite(SS, HIGH);
+
+		}
 	}
 
 	return 0;
