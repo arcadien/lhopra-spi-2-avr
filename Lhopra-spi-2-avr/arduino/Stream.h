@@ -85,9 +85,6 @@ class Stream : public Print
   String readString();
   String readStringUntil(char terminator);
 
-  using Print::write;
-
-
   protected:
   long parseInt(char skipChar); // as above but the given skipChar is ignored
   // as above but the given skipChar is ignored

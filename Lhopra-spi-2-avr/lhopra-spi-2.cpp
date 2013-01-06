@@ -33,27 +33,24 @@ void setup() {
 		Serial.read();
 	}
 
-	delay(2000);
+	// message d'info pour l'utilisateur
+	Serial.println("Ready to read!");
 }
 
-int main(void) {
+void loop() {
 
-	setup();
+	// transfère dès qu'un caractère est lisible sur l'UART
+	while (Serial.available()) {
 
-	for (;;) {
+		char inChar = (char) Serial.read();
 
-		// transfère dès qu'un caractère est lisible sur l'UART
+		Serial.print("Sending : ");
+		Serial.println(inChar);
 
-		while (Serial.available()) {
+		// transfer
+		digitalWrite(SS, LOW);
+		SPI.transfer(inChar);
+		digitalWrite(SS, HIGH);
 
-			char inChar = (char) Serial.read();
-
-			// transfer
-			digitalWrite(SS, LOW);
-			SPI.transfer(inChar);
-			digitalWrite(SS, HIGH);
-
-		}
 	}
-	return 0;
 }

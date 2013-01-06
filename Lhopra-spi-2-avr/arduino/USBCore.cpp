@@ -53,10 +53,6 @@ const u16 STRING_IPRODUCT[17] = {
 	(3<<8) | (2+2*16),
 #if USB_PID == 0x8036	
 	'A','r','d','u','i','n','o',' ','L','e','o','n','a','r','d','o'
-#elif USB_PID == 0x8037
-	'A','r','d','u','i','n','o',' ','M','i','c','r','o',' ',' ',' '
-#elif USB_PID == 0x9208
-	'L','i','l','y','P','a','d','U','S','B',' ',' ',' ',' ',' ',' '
 #else
 	'U','S','B',' ','I','O',' ','B','o','a','r','d',' ',' ',' ',' '
 #endif
@@ -66,8 +62,6 @@ const u16 STRING_IMANUFACTURER[12] = {
 	(3<<8) | (2+2*11),
 #if USB_VID == 0x2341
 	'A','r','d','u','i','n','o',' ','L','L','C'
-#elif USB_VID == 0x1b4f
-	'S','p','a','r','k','F','u','n',' ',' ',' '
 #else
 	'U','n','k','n','o','w','n',' ',' ',' ',' '
 #endif
@@ -609,7 +603,7 @@ ISR(USB_GEN_vect)
 	{
 #ifdef CDC_ENABLED
 		USB_Flush(CDC_TX);				// Send a tx frame if found
-		if (USB_Available(CDC_RX))	// Handle received bytes (if any)
+		while (USB_Available(CDC_RX))	// Handle received bytes (if any)
 			Serial.accept();
 #endif
 		
@@ -644,11 +638,7 @@ void USBDevice_::attach()
 	_usbConfiguration = 0;
 	UHWCON = 0x01;						// power internal reg
 	USBCON = (1<<USBE)|(1<<FRZCLK);		// clock frozen, usb enabled
-#if F_CPU == 16000000UL
 	PLLCSR = 0x12;						// Need 16 MHz xtal
-#elif F_CPU == 8000000UL
-	PLLCSR = 0x02;						// Need 8 MHz xtal
-#endif
 	while (!(PLLCSR & (1<<PLOCK)))		// wait for lock pll
 		;
 
